@@ -1,63 +1,69 @@
 import { galleryItems } from "./gallery-items.js";
 // Change code below this line
 console.log(galleryItems);
-
-const createImage = (item, parent) => {
-  const { preview, original, description } = item;
-  const img = document.createElement("img");
-
-  img.classList.add("gallery__image");
-  img.dataset.source = original;
-  img.src = preview;
-  img.alt = description;
-
-  parent.appendChild(img);
+// -------------------------------------------------
+const gallery = document.querySelector(".gallery");
+console.log(gallery);
+const cardList = (acc, { preview, original, description }) => {
+  return (
+    acc +
+    `<div class="gallery__item">
+  <a class="gallery__link" href="${original}">
+    <img
+      class="gallery__image"
+      src="${preview}"
+      data-source="${original}"
+      alt="${description}"
+    />
+  </a>
+</div>`
+  );
 };
 
-const createLink = (item, parent) => {
-  const { original } = item;
-  const a = document.createElement("a");
+const imgMarkup = galleryItems.reduce(cardList, "");
 
-  a.classList.add("gallery__link");
-  a.href = original;
+const itemMarkup = document.querySelector(".gallery");
+itemMarkup.insertAdjacentHTML("afterbegin", imgMarkup);
 
-  createImage(item, a);
+itemMarkup.addEventListener("click", onClickGallery);
 
-  parent.appendChild(a);
-};
+// ------------------------------------------------
+function onClickGallery(event) {
+  const isImage = event.target.classList.contains("gallery__image");
+  if (!isImage) return;
 
-const createItem = (item) => {
-  const li = document.createElement("li");
-  li.classList.add("gallery__item");
+  event.preventDefault();
 
-  createLink(item, li);
+  const modal = basicLightbox.create(`
+    <div class="modal">
+    <img src = "${event.target.dataset.source}"/>
+    </div>`);
 
-  return li;
-};
+  modal.show();
 
-const renderListItems = (arr) => {
-  const items = arr.map((item) => createItem(item));
+  if (event.target.nodeName === "IMG") {
+    // modal.classList.add("is-open");
+    window.addEventListener("keydown", onPressKeyESC);
+  }
 
-  refs.galleryList.append(...items);
-};
+  // const modalOpn = modal.classList.contains("is-open");
 
-renderListItems(images);
+  // if (isImage === modalOpn) {
+  //   modal.close();
+  //   window.removeEventListener("click", onClickGallery);
+  // }
 
-function onClickHandler(e) {
-  e.preventDefault();
+  function onPressKeyESC(event) {
+    if (event.code === "Escape") {
+      modal.close();
+      window.removeEventListener("keydown", onPressKeyESC);
+    }
 
-  if (e.target.nodeName === "IMG") {
-    refs.lightbox.classList.add("is-open");
-    refs.lightbox.querySelector(".lightbox__image").src = e.target.src;
-    refs.lightbox.querySelector(".lightbox__image").alt = e.target.alt;
+    // function mouseEnter(event) {
+    //   if (event.code === "mouseenter") {
+    //     modal.close();
+    //     window.removeEventListener("mouseenter", mouseEnter);
+    //   }
+    // }
   }
 }
-
-function onCloseHandler(e) {
-  if (e.target.nodeName === "I" || e.target.nodeName === "BUTTON") {
-    refs.lightbox.classList.remove("is-open");
-  }
-}
-
-refs.galleryList.addEventListener("click", onClickHandler);
-refs.btn.addEventListener("click", onCloseHandler);
