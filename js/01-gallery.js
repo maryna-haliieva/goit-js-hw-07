@@ -1,6 +1,7 @@
 import { galleryItems } from "./gallery-items.js";
 // Change code below this line
 console.log(galleryItems);
+
 // -------------------------------------------------
 const gallery = document.querySelector(".gallery");
 console.log(gallery);
@@ -34,36 +35,33 @@ function onClickGallery(event) {
 
   event.preventDefault();
 
-  const modal = basicLightbox.create(`
+  const modal = basicLightbox.create(
+    `
     <div class="modal">
     <img src = "${event.target.dataset.source}"/>
-    </div>`);
+    </div>`,
+    {
+      closable: true,
+      onShow: (instance) => {
+        instance.element().addEventListener("click", (e) => {
+          if (e.target.nodeName === "IMG") {
+            instance.close();
+          }
+        });
+      },
+    }
+  );
 
   modal.show();
 
   if (event.target.nodeName === "IMG") {
-    // modal.classList.add("is-open");
     window.addEventListener("keydown", onPressKeyESC);
   }
-
-  // const modalOpn = modal.classList.contains("is-open");
-
-  // if (isImage === modalOpn) {
-  //   modal.close();
-  //   window.removeEventListener("click", onClickGallery);
-  // }
 
   function onPressKeyESC(event) {
     if (event.code === "Escape") {
       modal.close();
       window.removeEventListener("keydown", onPressKeyESC);
     }
-
-    // function mouseEnter(event) {
-    //   if (event.code === "mouseenter") {
-    //     modal.close();
-    //     window.removeEventListener("mouseenter", mouseEnter);
-    //   }
-    // }
   }
 }
